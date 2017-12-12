@@ -4,11 +4,11 @@ close all;
 clc;
 
 % PARAMETERS
-beta = .99; %discount factor 
-sigma = 2; % coefficient of risk aversion
-% replacement ratio (unemployment benefits)
-% endowment in employment states
-% transition matrix
+beta = .9932; %discount factor 
+sigma = 1.5; % coefficient of risk aversion
+b = 0.5; % replacement ratio (unemployment benefits)
+y_s = [1, b]; % endowment in employment states
+PI = [.97 .03; .5 .5]; % transition matrix
 
 
 % ASSET VECTOR
@@ -122,7 +122,7 @@ gini_wealth1=gini(pop, wealth1,true);% download gini.m online
 title(['Wealth, gini=',num2str(gini_wealth1)])
 subplot(1,2,2)
 gini_earning1=gini(pop, earning,true);
-title(['Earning, gini=',num2str(gini_earning1)])
+title(['Wealth, gini=',num2str(gini_earning1)])
 % Type II. with negative wealth
 WEALTH=sortrows([wealth,pop,pop.*wealth]);
 WEALTH=cumsum(WEALTH);
