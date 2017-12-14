@@ -8,9 +8,6 @@ beta = .9932; %discount factor
 sigma = 1.5; % coefficient of risk aversion
 b = 0.5; % replacement ratio (unemployment benefits)
 
-w1=0.4539; %rural weight
-w2=0.5461; %urban weight
-
 y_s = [1, b]; % endowment in employment states for rural
 y_s1 = [2, b]; % endowment in employment states for urban
 
@@ -69,56 +66,42 @@ while (abs(aggsav) >= 0.01) ;
        [vfn, pol_indx] = max(v_mat, [], 2); %max for each row/rural
        [vfn1, pol_indx1] = max(v_mat1, [], 2); %max for each row/rural
        
-       v_tol = max(max(abs(permute(vfn, [3 1 2])-v_guess)));
-       v_tol1 = max(max(abs(permute(vfn1, [3 1 2])-v_guess1)));
- 
-       v_tol=max(v_tol,v_tol1);
+       v_tol = max(abs(permute(vfn, [3 1 2])-v_guess));
+       v_tol = max(v_tol(:));
+       
+       v_tol1 = max(abs(permute(vfn1, [3 1 2])-v_guess1));
+       v_tol1 = max(v_tol1(:));
+       
        
        v_guess = permute(vfn, [3 1 2]);
-       v_guess1 = permute(vfn1, [3 1 2]);
     end;
     
     % KEEP DECSISION RULE
-    ab=a';
     pol_indx=permute(pol_indx, [3 1 2]);
-    pol_fn = ab(pol_indx);
-    
-    pol_indx1=permute(pol_indx1, [3 1 2]);
-    pol_fn1 = ab(pol_indx1);
+    pol_fn = a(pol_indx);
     
     % SET UP INITITAL DISTRIBUTION
-    Mu=ones (2,a_num*h_num); % Mu is the distribution for a(a,h,y)
-    Mu=Mu/sum(Mu(:));
+    mu=zeros(2,a_num);
+    mu(:)=1/(2*a_num);
     
-    Mu1=ones (2,a_num*h_num); % Mu is the distribution for a(a,h,y)
-    Mu1=Mu1/sum(Mu1(:));
-    
-    mu_tol=1;
-  while mu_tol>1e-07 
+    dis=1;
+  while dis>0.0000001 
       % ITERATE OVER DISTRIBUTIONS
-      MuNew = zeros(size(Mu));
-      MuNew1= zeros(size(Mu1));
-     [emp_ind, a_ind, mass] = find(Mu); % find non-zero indices
-     [emp_ind1, a_ind1, mass1] = find(Mu1); % find non-zero indices
-     
+      MuNew = zeros(size(mu));
+     [emp_ind, a_ind, mass] = find(mu); % find non-zero indices
+    
     for ii = 1:length(emp_ind)
         apr_ind = pol_indx(emp_ind(ii),a_ind(ii)); % which a prime does the policy fn prescribe?
+        
         MuNew(:, apr_ind) = MuNew(:, apr_ind) + ... % which mass of households goes to which exogenous state?
-            (PI(emp_ind(ii), :)*mass(ii))';    
+            (PI(emp_ind(ii), :)*mass(ii))';
+        
     end
-    
-    for jj = 1:length(emp_ind1)
-        apr_ind1 = pol_indx1(emp_ind1(jj),a_ind1(jj)); % which a prime does the policy fn prescribe?
-        MuNew1(:, apr_ind1) = MuNew1(:, apr_ind1) + ... % which mass of households goes to which exogenous state?
-            (PI(emp_ind1(jj), :)*mass1(jj))';    
-    end
-    mu_tol= max(max(abs(Mu-MuNew)));
-    mu_tol1= max(max(abs(Mu1-MuNew1)));
-    Mu=MuNew;
-    Mu1=MuNew1;
+    dis = max(max(abs(mu-MuNew)));
+    mu=MuNew;
   end
    %Market clears
-   aggsav = w1*sum( pol_fn(:) .* Mu(:) )+w2*sum( pol_fn1(:) .* Mu1(:) ); % Aggregate future assets;
+   aggsav=mu(1,:)*pol_fn(1,:)'+mu(2,:)*pol_fn(2,:)';
    if aggsav>0;
        q_min=q_guess;
    else q_max=q_guess;
