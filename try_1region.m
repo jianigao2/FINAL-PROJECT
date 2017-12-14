@@ -66,7 +66,7 @@ while abs(aggsav)>=0.01
     
     mu_tol = 1;
    
-   while mu_tol > 1e-04
+   while mu_tol > 1e-05
     [emp_ind, a_ind,mass] = find(Mu); % find non-zero indices
     
     MuNew = zeros(size(Mu));
