@@ -17,12 +17,12 @@ pi_inv=pi_inv(:,1);
 %%%%%set up the grids%%%
 h_min=0.1;
 h_max=5;
-h_num=30;
+h_num=10;
 h=linspace(h_min,h_max,h_num); %housing vector
 
 a_min=-2;
 a_max=5;
-a_num=30; 
+a_num=10; 
 a=linspace(a_min,a_max,a_num); %assets vector
  
 %%%initial guess for q
@@ -50,7 +50,7 @@ while abs(aggsav)>=0.01
     
     %%%value function iteration
     v_tol=1;
-    while v_tol>=0.001
+    while v_tol>=1e-03
         v_mat=ret+beta*repmat(permute(pi*v_guess,[3 2 1]),[a_num*h_num 1 1]);
         [vfn,pol_ind]=max(v_mat,[],2);
         vfn=permute(vfn,[3 1 2]);
